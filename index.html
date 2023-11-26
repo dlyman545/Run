@@ -24,7 +24,7 @@
   var obstacles = [];
   var score = 0;
   var speed = 2;
-  var wallWidth = 200; // Initial width of the safe play area
+  var wallWidth = canvas.width; // Initial width of the safe play area
 
   function drawPlayer() {
     ctx.beginPath();
@@ -101,7 +101,7 @@
     }
 
     // Narrow the safe play area over time
-    wallWidth -= 0.1;
+    wallWidth += 0.1;
 
     drawWalls();
     drawPlayer();
