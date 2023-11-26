@@ -20,7 +20,7 @@
   // Game variables
   var canvas = document.getElementById("gameCanvas");
   var ctx = canvas.getContext("2d");
-  var player = { x: 50, y: canvas.height - 30, width: 20, height: 20, color: "#0095DD" };
+  var player = { x: canvas.width / 2, y: canvas.height - 30, width: 20, height: 20, color: "#0095DD" };
   var obstacles = [];
   var score = 0;
   var speed = 2;
@@ -77,13 +77,15 @@
       obstacles.push({ x: obstacleX, y: obstacleY, width: obstacleWidth, height: 20 });
     }
 
-    // Check for collisions with obstacles
+    // Check for collisions with obstacles and walls
     for (var i = 0; i < obstacles.length; i++) {
       if (
-        player.x < obstacles[i].x + obstacles[i].width &&
+        (player.x < obstacles[i].x + obstacles[i].width &&
         player.x + player.width > obstacles[i].x &&
         player.y < obstacles[i].y + obstacles[i].height &&
-        player.y + player.height > obstacles[i].y
+        player.y + player.height > obstacles[i].y) ||
+        (player.x < wallWidth && player.x < 0) ||
+        (player.x + player.width > canvas.width - wallWidth && player.x > canvas.width - player.width)
       ) {
         alert("Game Over! Your score is: " + score);
         document.location.reload();
