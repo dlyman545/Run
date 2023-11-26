@@ -74,6 +74,15 @@
       var obstacleWidth = Math.random() * 50 + 20;
       var obstacleX = Math.random() * (canvas.width - obstacleWidth);
       var obstacleY = -20;
+
+      // Check if obstacle is inside the wall area
+      if (
+        (obstacleX < wallWidth && obstacleX + obstacleWidth > 0) ||
+        (obstacleX > canvas.width - wallWidth - obstacleWidth && obstacleX < canvas.width)
+      ) {
+        return; // Skip this iteration
+      }
+
       obstacles.push({ x: obstacleX, y: obstacleY, width: obstacleWidth, height: 20 });
     }
 
@@ -84,8 +93,8 @@
         player.x + player.width > obstacles[i].x &&
         player.y < obstacles[i].y + obstacles[i].height &&
         player.y + player.height > obstacles[i].y) ||
-        (player.x < wallWidth && player.x < 0) ||
-        (player.x + player.width > canvas.width - wallWidth && player.x > canvas.width - player.width)
+        (player.x < wallWidth && player.x > 0) ||
+        (player.x + player.width > canvas.width - wallWidth && player.x < canvas.width - player.width)
       ) {
         alert("Game Over! Your score is: " + score);
         document.location.reload();
