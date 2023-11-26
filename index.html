@@ -1,111 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Endless Runner Game</title>
-    <style>
-        canvas {
-            border: 1px solid #000;
-            display: block;
-            margin: 20px auto;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Endless Runner Game</title>
+  <style>
+    canvas {
+      display: block;
+      margin: auto;
+      background-color: #f0f0f0;
+    }
+  </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
 
-    <script>
-        // Game variables
-        var canvas = document.getElementById("gameCanvas");
-        var ctx = canvas.getContext("2d");
-        var player = { x: 50, y: canvas.height - 30, width: 30, height: 30, color: "#00F" };
-        var obstacles = [];
-        var speed = 2;
-        var score = 0;
+<canvas id="gameCanvas" width="800" height="400"></canvas>
 
-        // Update game state
-        function update() {
-            // Move obstacles
-            for (var i = 0; i < obstacles.length; i++) {
-                obstacles[i].y += speed;
-                
-                // Check for collision with player
-                if (
-                    player.x < obstacles[i].x + obstacles[i].width &&
-                    player.x + player.width > obstacles[i].x &&
-                    player.y < obstacles[i].y + obstacles[i].height &&
-                    player.y + player.height > obstacles[i].y
-                ) {
-                    // Game over
-                    alert("Game Over! Your score: " + score);
-                    resetGame();
-                }
-                
-                // Remove off-screen obstacles
-                if (obstacles[i].y > canvas.height) {
-                    obstacles.splice(i, 1);
-                    score++;
-                }
-            }
+<script>
+  // Game variables
+  var canvas = document.getElementById("gameCanvas");
+  var ctx = canvas.getContext("2d");
+  var player = { x: canvas.width / 2, y: canvas.height - 30, width: 20, height: 20, color: "#0095DD" };
+  var obstacles = [];
+  var score = 0;
+  var speed = 2;
+  var wallWidth = canvas.width; // Initial width of the safe play area
 
-            // Increase speed over time
-            if (score % 10 === 0 && speed < 10) {
-                speed += 0.5;
-            }
+  function drawPlayer() {
+    ctx.beginPath();
+    ctx.rect(player.x, player.y, player.width, player.height);
+    ctx.fillStyle = player.color;
+    ctx.fill();
+    ctx.closePath();
+  }
 
-            // Update score
-            document.getElementById("score").innerText = "Score: " + score;
+  function drawObstacles() {
+    for (var i = 0; i < obstacles.length; i++) {
+      ctx.beginPath();
+      ctx.rect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+      ctx.fillStyle = "#FF0000";
+      ctx.fill();
+      ctx.closePath();
+    }
+  }
 
-            // Request next animation frame
-            requestAnimationFrame(update);
-        }
+  function drawWalls() {
+    ctx.fillStyle = "#CCCCCC";
+    ctx.fillRect(0, 0, wallWidth, canvas.height);
+    ctx.fillRect(canvas.width - wallWidth, 0, wallWidth, canvas.height);
+  }
 
-        // Draw everything
-        function draw() {
-            // Clear the canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+  function drawScore() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("Score: " + score, 10, 20);
+  }
 
-            // Draw player
-            ctx.fillStyle = player.color;
-            ctx.fillRect(player.x, player.y, player.width, player.height);
+  function updateGameArea() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw obstacles
-            ctx.fillStyle = "#F00";
-            for (var i = 0; i < obstacles.length; i++) {
-                ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
-            }
-        }
+    // Move obstacles
+    for (var i = 0; i < obstacles.length; i++) {
+      obstacles[i].y += speed;
+    }
 
-        // Generate a new obstacle
-        function generateObstacle() {
-            var obstacleWidth = Math.floor(Math.random() * (50 - 20 + 1)) + 20;
-            var obstacleX = Math.floor(Math.random() * (canvas.width - obstacleWidth));
-            var obstacle = { x: obstacleX, y: 0, width: obstacleWidth, height: 20 };
-            obstacles.push(obstacle);
-        }
+    // Remove obstacles that are out of the canvas
+    obstacles = obstacles.filter(function(obstacle) {
+      return obstacle.y < canvas.height;
+    });
 
-        // Handle keyboard input
-        function handleKeyPress(e) {
-            if (e.key === "ArrowLeft" && player.x > 0) {
-                player.x -= 10;
-            } else if (e.key === "ArrowRight" && player.x < canvas.width - player.width) {
-                player.x += 10;
-            }
-        }
+    // Add new obstacle
+    if (Math.random() < 0.02) {
+      var obstacleWidth = Math.random() * 50 + 20;
+      var obstacleX = Math.random() * (canvas.width - obstacleWidth);
+      var obstacleY = -20;
+      obstacles.push({ x: obstacleX, y: obstacleY, width: obstacleWidth, height: 20 });
+    }
 
-        // Reset the game
-        function resetGame() {
-            obstacles = [];
-            speed = 2;
-            score = 0;
-        }
+    // Check for collisions with obstacles and walls
+    for (var i = 0; i < obstacles.length; i++) {
+      if (
+        (player.x < obstacles[i].x + obstacles[i].width &&
+        player.x + player.width > obstacles[i].x &&
+        player.y < obstacles[i].y + obstacles[i].height &&
+        player.y + player.height > obstacles[i].y) ||
+        (player.x < wallWidth && player.x < 0) ||
+        (player.x + player.width > canvas.width - wallWidth && player.x > canvas.width - player.width)
+      ) {
+        alert("Game Over! Your score is: " + score);
+        document.location.reload();
+      }
+    }
 
-        // Initialize the game
-        window.addEventListener("keydown", handleKeyPress);
-        setInterval(generateObstacle, 1500);
-        update();
-        draw();
-    </script>
+    // Update score
+    score++;
+
+    // Increase speed gradually
+    if (score % 100 === 0) {
+      speed += 0.5;
+    }
+
+    // Narrow the safe play area over time
+    wallWidth += 0.1;
+
+    drawWalls();
+    drawPlayer();
+    drawObstacles();
+    drawScore();
+
+    requestAnimationFrame(updateGameArea);
+  }
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "ArrowLeft" && player.x > wallWidth) {
+      player.x -= 10;
+    } else if (e.key === "ArrowRight" && player.x < canvas.width - wallWidth - player.width) {
+      player.x += 10;
+    }
+  });
+
+  updateGameArea();
+</script>
+
 </body>
 </html>
