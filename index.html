@@ -24,7 +24,7 @@
   var obstacles = [];
   var score = 0;
   var speed = 2;
-  var wallWidth = 0; // Initial width of the walls
+  var wallWidth = canvas.width; // Initial width of the safe play area
 
   function drawPlayer() {
     ctx.beginPath();
@@ -74,12 +74,6 @@
       var obstacleWidth = Math.random() * 50 + 20;
       var obstacleX = Math.random() * (canvas.width - obstacleWidth);
       var obstacleY = -20;
-
-      // Check if obstacle is inside the wall area
-      if (obstacleX < wallWidth || obstacleX + obstacleWidth > canvas.width - wallWidth) {
-        continue;
-      }
-
       obstacles.push({ x: obstacleX, y: obstacleY, width: obstacleWidth, height: 20 });
     }
 
@@ -90,8 +84,8 @@
         player.x + player.width > obstacles[i].x &&
         player.y < obstacles[i].y + obstacles[i].height &&
         player.y + player.height > obstacles[i].y) ||
-        (player.x < wallWidth && player.x > 0) ||
-        (player.x + player.width > canvas.width - wallWidth && player.x < canvas.width - player.width)
+        (player.x < wallWidth && player.x < 0) ||
+        (player.x + player.width > canvas.width - wallWidth && player.x > canvas.width - player.width)
       ) {
         alert("Game Over! Your score is: " + score);
         document.location.reload();
@@ -107,7 +101,7 @@
     }
 
     // Narrow the safe play area over time
-    wallWidth -= 0.1;
+    wallWidth += 0.1;
 
     drawWalls();
     drawPlayer();
