@@ -24,6 +24,7 @@
   var obstacles = [];
   var obstacleMin = 0;
   var obstacleMax = .01;
+  var powerUps = [];
   var score = 0;
   var speed = 1;
   var wallWidth = 0; // Initial width of the walls
@@ -41,6 +42,16 @@
       ctx.beginPath();
       ctx.rect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
       ctx.fillStyle = "#FF0000";
+      ctx.fill();
+      ctx.closePath();
+    }
+  }
+
+  function drawPowerUps() {
+    for (var i = 0; i < powerUps.length; i++) {
+      ctx.beginPath();
+      ctx.arc(powerUps[i].x, powerUps[i].y, powerUps[i].radius, 0, Math.PI * 2);
+      ctx.fillStyle = powerUps[i].color;
       ctx.fill();
       ctx.closePath();
     }
@@ -65,12 +76,22 @@
     for (var i = 0; i < obstacles.length; i++) {
       obstacles[i].y += speed;
     }
-
+    
+    // Move power-ups
+    for (var i = 0; i < powerUps.length; i++) {
+      powerUps[i].y += speed;
+    }
+    
     // Remove obstacles that are out of the canvas
     obstacles = obstacles.filter(function(obstacle) {
       return obstacle.y < canvas.height;
     });
-
+    
+    // Remove power-ups that are out of the canvas
+    powerUps = powerUps.filter(function(powerUp) {
+      return powerUp.y < canvas.height;
+    });
+    
     // Add new obstacle
     if (Math.random() < 0.02) {
       var obstacleWidth = Math.random() * (obstacleMax - obstacleMin) + obstacleMin;
@@ -79,7 +100,17 @@
 
       obstacles.push({ x: obstacleX, y: obstacleY, width: obstacleWidth, height: 20 });
     }
+    
+    // Add new power-up
+    if (Math.random() < 0.005) {
+      var powerUpX = wallWidth + Math.random() * (canvas.width - (wallWidth * 2));
+      var powerUpY = -20;
+      var powerUpRadius = 10;
+      var powerUpColor = "#00FF00";
 
+      powerUps.push({ x: powerUpX, y: powerUpY, radius: powerUpRadius, color: powerUpColor });
+    }
+    
     // Check for collisions with obstacles and walls
     for (var i = 0; i < obstacles.length; i++) {
       if (
@@ -94,7 +125,20 @@
         document.location.reload();
       }
     }
-
+    
+    // Check for collisions with power-ups
+    for (var i = 0; i < powerUps.length; i++) {
+      if (
+        (player.x < powerUps[i].x + powerUps[i].radius &&
+        player.x + player.width > powerUps[i].x - powerUps[i].radius &&
+        player.y < powerUps[i].y + powerUps[i].radius &&
+        player.y + player.height > powerUps[i].y - powerUps[i].radius)
+      ) {
+        // Player collected a power-up
+        handlePowerUpCollected(i);
+      }
+    }
+    
     // Update score
     score++;
 
@@ -117,7 +161,29 @@
 
     requestAnimationFrame(updateGameArea);
   }
+  
+  function handlePowerUpCollected(index) {
+    // Modify game state based on the collected power-up
+    var collectedPowerUp = powerUps[index];
 
+    // Slow down the game
+    if (collectedPowerUp.color === "#0000FF") {
+      speed -= 0.5;
+    }
+    // Decrease obstacle size
+    else if (collectedPowerUp.color === "#FFA500") {
+      obstacleMin -= 5;
+      obstacleMax -= 5;
+    }
+    // Push the walls back
+    else if (collectedPowerUp.color === "#00FF00") {
+      wallWidth -= 20;
+    }
+
+    // Remove the collected power-up from the array
+    powerUps.splice(index, 1);
+  }
+  
   document.addEventListener("keydown", function(e) {
     if (e.key === "ArrowLeft" && player.x > wallWidth) {
       player.x -= 10;
