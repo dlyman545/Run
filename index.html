@@ -14,7 +14,7 @@
 </head>
 <body>
 
-<canvas id="gameCanvas" width="800" height="400"></canvas>
+<canvas id="gameCanvas" width="800" height="600"></canvas>
 
 <script>
   // Game variables
@@ -22,8 +22,10 @@
   var ctx = canvas.getContext("2d");
   var player = { x: canvas.width / 2, y: canvas.height - 30, width: 20, height: 20, color: "#0095DD" };
   var obstacles = [];
+  var obstacleMin = 0;
+  var obstacleMax = .01;
   var score = 0;
-  var speed = 2;
+  var speed = 1;
   var wallWidth = 0; // Initial width of the walls
 
   function drawPlayer() {
@@ -71,9 +73,10 @@
 
     // Add new obstacle
     if (Math.random() < 0.02) {
-      var obstacleWidth = Math.random() * 50 + 20;
-      var obstacleX = Math.random() * (canvas.width - obstacleWidth);
+      var obstacleWidth = Math.random() * (obstacleMax - obstacleMin) + obstacleMin;
+      var obstacleX = wallWidth + Math.random() * (canvas.width - (wallWidth * 2) - obstacleWidth);
       var obstacleY = -20;
+
       obstacles.push({ x: obstacleX, y: obstacleY, width: obstacleWidth, height: 20 });
     }
 
@@ -84,8 +87,8 @@
         player.x + player.width > obstacles[i].x &&
         player.y < obstacles[i].y + obstacles[i].height &&
         player.y + player.height > obstacles[i].y) ||
-        (player.x < wallWidth && player.x < 0) ||
-        (player.x + player.width > canvas.width - wallWidth && player.x > canvas.width - player.width)
+        (player.x < wallWidth && player.x > 0) ||
+        (player.x + player.width > canvas.width - wallWidth && player.x < canvas.width - player.width)
       ) {
         alert("Game Over! Your score is: " + score);
         document.location.reload();
@@ -97,11 +100,15 @@
 
     // Increase speed gradually
     if (score % 100 === 0) {
-      speed += 0.5;
+      speed += 0.05;
     }
 
     // Narrow the safe play area over time
-    wallWidth += 0.1;
+    wallWidth += 0.05;
+    
+    // Imcrease obstacle size over time
+    obstacleMin += 0.01;
+    obstacleMax += 0.02;
 
     drawWalls();
     drawPlayer();
@@ -114,7 +121,7 @@
   document.addEventListener("keydown", function(e) {
     if (e.key === "ArrowLeft" && player.x > wallWidth) {
       player.x -= 10;
-    } else if (e.key === "ArrowRight" && player.x < canvas.width - wallWidth - player.width) {
+    } else if (e.key === "ArrowRight" && player.x < canvas.width - wallWidth) {
       player.x += 10;
     }
   });
