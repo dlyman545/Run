@@ -22,9 +22,9 @@
   var ctx = canvas.getContext("2d");
   var player = { x: canvas.width / 2, y: canvas.height - 30, width: 20, height: 20, color: "#0095DD" };
   var obstacles = [];
-  var obstacleGrowth = 5;
+  var obstacleGrowth = 1;
   var score = 0;
-  var speed = 2;
+  var speed = 1;
   var wallWidth = 0; // Initial width of the walls
 
   function drawPlayer() {
@@ -72,7 +72,7 @@
 
     // Add new obstacle
     if (Math.random() < 0.02) {
-      var obstacleWidth = Math.random() * obstacleGrowth + 20;
+      var obstacleWidth = Math.random() * obstacleGrowth + 1;
       var obstacleX = wallWidth + Math.random() * (canvas.width - (wallWidth * 2) - obstacleWidth);
       var obstacleY = -20;
 
@@ -99,11 +99,11 @@
 
     // Increase speed gradually
     if (score % 100 === 0) {
-      speed += 0.0;
+      speed += 0.05;
     }
 
     // Narrow the safe play area over time
-    wallWidth += 0.1;
+    wallWidth += 0.05;
     
     // Imcrease obstacle size over time
     obstacleGrowth += 0.05;
