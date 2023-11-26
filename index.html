@@ -72,7 +72,7 @@
     // Add new obstacle
     if (Math.random() < 0.02) {
       var obstacleWidth = Math.random() * 50 + 20;
-      var obstacleX = wallWidth + Math.random() * (canvas.width - wallWidth - obstacleWidth);
+      var obstacleX = Math.random() * (canvas.width - wallWidth - obstacleWidth);
       var obstacleY = -20;
 
       obstacles.push({ x: obstacleX, y: obstacleY, width: obstacleWidth, height: 20 });
