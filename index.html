@@ -24,6 +24,7 @@
   var obstacles = [];
   var score = 0;
   var speed = 2;
+  var wallWidth = 200; // Initial width of the safe play area
 
   function drawPlayer() {
     ctx.beginPath();
@@ -41,6 +42,12 @@
       ctx.fill();
       ctx.closePath();
     }
+  }
+
+  function drawWalls() {
+    ctx.fillStyle = "#CCCCCC";
+    ctx.fillRect(0, 0, wallWidth, canvas.height);
+    ctx.fillRect(canvas.width - wallWidth, 0, wallWidth, canvas.height);
   }
 
   function drawScore() {
@@ -91,6 +98,10 @@
       speed += 0.5;
     }
 
+    // Narrow the safe play area over time
+    wallWidth -= 0.1;
+
+    drawWalls();
     drawPlayer();
     drawObstacles();
     drawScore();
@@ -99,9 +110,9 @@
   }
 
   document.addEventListener("keydown", function(e) {
-    if (e.key === "ArrowLeft" && player.x > 0) {
+    if (e.key === "ArrowLeft" && player.x > wallWidth) {
       player.x -= 10;
-    } else if (e.key === "ArrowRight" && player.x < canvas.width - player.width) {
+    } else if (e.key === "ArrowRight" && player.x < canvas.width - wallWidth - player.width) {
       player.x += 10;
     }
   });
