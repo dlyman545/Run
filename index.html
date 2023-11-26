@@ -45,7 +45,7 @@
   }
 
   function drawWalls() {
-    ctx.fillStyle = "#CCCCCC";
+    ctx.fillStyle = "#FF0000";
     ctx.fillRect(0, 0, wallWidth, canvas.height);
     ctx.fillRect(canvas.width - wallWidth, 0, wallWidth, canvas.height);
   }
@@ -72,16 +72,8 @@
     // Add new obstacle
     if (Math.random() < 0.02) {
       var obstacleWidth = Math.random() * 50 + 20;
-      var obstacleX = Math.random() * (canvas.width - obstacleWidth);
+      var obstacleX = wallWidth + Math.random() * (canvas.width - wallWidth - obstacleWidth);
       var obstacleY = -20;
-
-      // Check if obstacle is inside the wall area
-      if (
-        (obstacleX < wallWidth && obstacleX + obstacleWidth > 0) ||
-        (obstacleX > canvas.width - wallWidth - obstacleWidth && obstacleX < canvas.width)
-      ) {
-        return; // Skip this iteration
-      }
 
       obstacles.push({ x: obstacleX, y: obstacleY, width: obstacleWidth, height: 20 });
     }
@@ -123,7 +115,7 @@
   document.addEventListener("keydown", function(e) {
     if (e.key === "ArrowLeft" && player.x > wallWidth) {
       player.x -= 10;
-    } else if (e.key === "ArrowRight" && player.x < canvas.width - wallWidth - player.width) {
+    } else if (e.key === "ArrowRight" && player.x < canvas.width - wallWidth) {
       player.x += 10;
     }
   });
