@@ -149,7 +149,7 @@
     }
 
     // Narrow the safe play area over time
-    wallWidth += 0.05;
+    wallWidth += 0.025;
     
     // Imcrease obstacle size over time
     obstacleMin += 0.01;
@@ -159,7 +159,7 @@
     powerupChance -= 0.00
     
     // increase obstacle chance
-    obstacleChance += 0.00001
+    obstacleChance += 0.000001
 
     drawWalls();
     drawPlayer();
@@ -181,16 +181,16 @@
 
     // Slow down the game
     if (collectedPowerUp.color === "#0000FF") {
-      speed -= 0.5;
+      speed -= Math.random()/2 * speed;
     }
     // Decrease obstacle size
     else if (collectedPowerUp.color === "#FFA500") {
-      obstacleMin -= 5;
-      obstacleMax -= 5;
+      obstacleMin -= Math.random()/2 * obstacleMin;
+      obstacleMax -= Math.random()/2 * obstacleMax;
     }
     // Push the walls back
     else if (collectedPowerUp.color === "#00FF00") {
-      wallWidth -= 20;
+      wallWidth -= Math.random()/2 * wallWidth;
     }
 
     // Remove the collected power-up from the array
