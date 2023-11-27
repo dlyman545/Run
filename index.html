@@ -23,8 +23,10 @@
   var player = { x: canvas.width / 2, y: canvas.height - 30, width: 20, height: 20, color: "#0095DD" };
   var obstacles = [];
   var obstacleMin = 0;
-  var obstacleMax = .01;
+  var obstacleMax = 0.01;
+  var obstacleChance = 0.02;
   var powerUps = [];
+  var powerupChance = 0.005;
   var score = 0;
   var speed = 1;
   var wallWidth = 0; // Initial width of the walls
@@ -93,7 +95,7 @@
     });
     
     // Add new obstacle
-    if (Math.random() < 0.02) {
+    if (Math.random() < obstacleChance) {
       var obstacleWidth = Math.random() * (obstacleMax - obstacleMin) + obstacleMin;
       var obstacleX = wallWidth + Math.random() * (canvas.width - (wallWidth * 2) - obstacleWidth);
       var obstacleY = -20;
@@ -102,12 +104,11 @@
     }
     
     // Add new power-up
-    if (Math.random() < 0.005) {
+    if (Math.random() < powerupChance) {
       var powerUpX = wallWidth + Math.random() * (canvas.width - (wallWidth * 2));
       var powerUpY = -20;
       var powerUpRadius = 10;
-      var powerUpColor = "#00FF00";
-
+      var powerUpColor = getRandomPowerUpColor();
       powerUps.push({ x: powerUpX, y: powerUpY, radius: powerUpRadius, color: powerUpColor });
     }
     
@@ -154,6 +155,12 @@
     obstacleMin += 0.01;
     obstacleMax += 0.02;
 
+    // decrease powerup chance
+    powerupChance -= 0.00001
+    
+    // increase obstacle chance
+    obstacleChance += 0.0001
+
     drawWalls();
     drawPlayer();
     drawObstacles();
@@ -161,6 +168,11 @@
     drawScore();
 
     requestAnimationFrame(updateGameArea);
+  }
+  
+  function getRandomPowerUpColor() {
+    var colors = ["#0000FF", "#FFA500", "#00FF00"];
+    return colors[Math.floor(Math.random() * colors.length)];
   }
   
   function handlePowerUpCollected(index) {
