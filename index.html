@@ -224,10 +224,10 @@
 
     if (touchDiff > 0 && player.x > wallWidth) {
       // Swipe right
-      player.x -= 10;
+      player.x += 10;
     } else if (touchDiff < 0 && player.x < canvas.width - wallWidth) {
       // Swipe left
-      player.x += 10;
+      player.x -= 10;
     }
 
     touchStartX = touchEndX;
