@@ -181,16 +181,16 @@
 
     // Slow down the game
     if (collectedPowerUp.color === "#0000FF") {
-      speed -= Math.random()/2 * speed;
+      speed -= Math.random()/4 * speed;
     }
     // Decrease obstacle size
     else if (collectedPowerUp.color === "#FFA500") {
-      obstacleMin -= Math.random()/2 * obstacleMin;
-      obstacleMax -= Math.random()/2 * obstacleMax;
+      obstacleMin -= Math.random()/4 * obstacleMin;
+      obstacleMax -= Math.random()/4 * obstacleMax;
     }
     // Push the walls back
     else if (collectedPowerUp.color === "#00FF00") {
-      wallWidth -= Math.random()/2 * wallWidth;
+      wallWidth -= Math.random()/4 * wallWidth;
     }
 
     // Remove the collected power-up from the array
