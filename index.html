@@ -22,6 +22,8 @@
 <canvas id="gameCanvas"></canvas>
 
 <script>
+  resizeCanvas();
+  
   // Game variables
   var canvas = document.getElementById("gameCanvas");
   var ctx = canvas.getContext("2d");
@@ -204,9 +206,9 @@
   
   document.addEventListener("keydown", function(e) {
     if (e.key === "ArrowLeft" && player.x > wallWidth) {
-      player.x -= 10;
-    } else if (e.key === "ArrowRight" && player.x < canvas.width - wallWidth) {
       player.x += 10;
+    } else if (e.key === "ArrowRight" && player.x < canvas.width - wallWidth) {
+      player.x -= 10;
     }
   });
   
