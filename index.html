@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Endless Runner Game</title>
   <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
     canvas {
       display: block;
       margin: auto;
@@ -14,7 +18,8 @@
 </head>
 <body>
 
-<canvas id="gameCanvas" width=100vw height=90vh></canvas>
+// <canvas id="gameCanvas" width=100vw height=90vh></canvas>
+<canvas id="gameCanvas"></canvas>
 
 <script>
   // Game variables
@@ -226,7 +231,17 @@
 
     touchStartX = touchEndX;
   });
+  
+  // Resize canvas to fill the entire viewport
+  window.addEventListener('resize', resizeCanvas, false);
 
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  resizeCanvas(); // Initial resize
+  
   updateGameArea();
 </script>
 
