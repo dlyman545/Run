@@ -204,6 +204,28 @@
       player.x += 10;
     }
   });
+  
+  // Touch event listeners for mobile devices
+  var touchStartX = 0;
+
+  canvas.addEventListener("touchstart", function(e) {
+    touchStartX = e.touches[0].clientX;
+  });
+
+  canvas.addEventListener("touchmove", function(e) {
+    var touchEndX = e.touches[0].clientX;
+    var touchDiff = touchEndX - touchStartX;
+
+    if (touchDiff > 0 && player.x > wallWidth) {
+      // Swipe right
+      player.x -= 10;
+    } else if (touchDiff < 0 && player.x < canvas.width - wallWidth) {
+      // Swipe left
+      player.x += 10;
+    }
+
+    touchStartX = touchEndX;
+  });
 
   updateGameArea();
 </script>
