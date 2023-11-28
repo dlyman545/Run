@@ -27,6 +27,7 @@
   var canvas = document.getElementById("gameCanvas");
   var ctx = canvas.getContext("2d");
   var player = { x: canvas.width / 2, y: canvas.height, width: 20, height: 20, color: "#0095DD" };
+  player.y = canvas.height;
   var obstacles = [];
   var obstacleMin = 0;
   var obstacleMax = 0.01;
