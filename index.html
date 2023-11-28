@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Endless Runner Game</title>
+  <title>Endless</title>
   <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
     canvas {
       display: block;
       margin: auto;
@@ -14,16 +18,20 @@
 </head>
 <body>
 
-<canvas id="gameCanvas" width="800" height="600"></canvas>
+<canvas id="gameCanvas"></canvas>
 
 <script>
+  
   // Game variables
   var canvas = document.getElementById("gameCanvas");
   var ctx = canvas.getContext("2d");
-  var player = { x: canvas.width / 2, y: canvas.height - 30, width: 20, height: 20, color: "#0095DD" };
+  var player = { x: canvas.width / 2, y: canvas.height, width: 20, height: 20, color: "#0095DD" };
   var obstacles = [];
   var obstacleMin = 0;
-  var obstacleMax = .01;
+  var obstacleMax = 0.01;
+  var obstacleChance = 0.01;
+  var powerUps = [];
+  var powerupChance = 0.005;
   var score = 0;
   var speed = 1;
   var wallWidth = 0; // Initial width of the walls
@@ -41,6 +49,16 @@
       ctx.beginPath();
       ctx.rect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
       ctx.fillStyle = "#FF0000";
+      ctx.fill();
+      ctx.closePath();
+    }
+  }
+
+  function drawPowerUps() {
+    for (var i = 0; i < powerUps.length; i++) {
+      ctx.beginPath();
+      ctx.arc(powerUps[i].x, powerUps[i].y, powerUps[i].radius, 0, Math.PI * 2);
+      ctx.fillStyle = powerUps[i].color;
       ctx.fill();
       ctx.closePath();
     }
@@ -65,21 +83,40 @@
     for (var i = 0; i < obstacles.length; i++) {
       obstacles[i].y += speed;
     }
-
+    
+    // Move power-ups
+    for (var i = 0; i < powerUps.length; i++) {
+      powerUps[i].y += speed;
+    }
+    
     // Remove obstacles that are out of the canvas
     obstacles = obstacles.filter(function(obstacle) {
       return obstacle.y < canvas.height;
     });
-
+    
+    // Remove power-ups that are out of the canvas
+    powerUps = powerUps.filter(function(powerUp) {
+      return powerUp.y < canvas.height;
+    });
+    
     // Add new obstacle
-    if (Math.random() < 0.02) {
+    if (Math.random() < obstacleChance) {
       var obstacleWidth = Math.random() * (obstacleMax - obstacleMin) + obstacleMin;
       var obstacleX = wallWidth + Math.random() * (canvas.width - (wallWidth * 2) - obstacleWidth);
       var obstacleY = -20;
 
       obstacles.push({ x: obstacleX, y: obstacleY, width: obstacleWidth, height: 20 });
     }
-
+    
+    // Add new power-up
+    if (Math.random() < powerupChance) {
+      var powerUpX = wallWidth + Math.random() * (canvas.width - (wallWidth * 2));
+      var powerUpY = -20;
+      var powerUpRadius = 10;
+      var powerUpColor = getRandomPowerUpColor();
+      powerUps.push({ x: powerUpX, y: powerUpY, radius: powerUpRadius, color: powerUpColor });
+    }
+    
     // Check for collisions with obstacles and walls
     for (var i = 0; i < obstacles.length; i++) {
       if (
@@ -94,7 +131,20 @@
         document.location.reload();
       }
     }
-
+    
+    // Check for collisions with power-ups
+    for (var i = 0; i < powerUps.length; i++) {
+      if (
+        (player.x < powerUps[i].x + powerUps[i].radius &&
+        player.x + player.width > powerUps[i].x - powerUps[i].radius &&
+        player.y < powerUps[i].y + powerUps[i].radius &&
+        player.y + player.height > powerUps[i].y - powerUps[i].radius)
+      ) {
+        // Player collected a power-up
+        handlePowerUpCollected(i);
+      }
+    }
+    
     // Update score
     score++;
 
@@ -104,20 +154,54 @@
     }
 
     // Narrow the safe play area over time
-    wallWidth += 0.05;
+    wallWidth += 0.025;
     
     // Imcrease obstacle size over time
     obstacleMin += 0.01;
     obstacleMax += 0.02;
 
+    // decrease powerup chance
+    powerupChance -= 0.00
+    
+    // increase obstacle chance
+    obstacleChance += 0.000001
+
     drawWalls();
     drawPlayer();
     drawObstacles();
+    drawPowerUps();
     drawScore();
 
     requestAnimationFrame(updateGameArea);
   }
+  
+  function getRandomPowerUpColor() {
+    var colors = ["#0000FF", "#FFA500", "#00FF00"];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+  
+  function handlePowerUpCollected(index) {
+    // Modify game state based on the collected power-up
+    var collectedPowerUp = powerUps[index];
 
+    // Slow down the game
+    if (collectedPowerUp.color === "#0000FF") {
+      speed -= Math.random()/4 * speed;
+    }
+    // Decrease obstacle size
+    else if (collectedPowerUp.color === "#FFA500") {
+      obstacleMin -= Math.random()/4 * obstacleMin;
+      obstacleMax -= Math.random()/4 * obstacleMax;
+    }
+    // Push the walls back
+    else if (collectedPowerUp.color === "#00FF00") {
+      wallWidth -= Math.random()/4 * wallWidth;
+    }
+
+    // Remove the collected power-up from the array
+    powerUps.splice(index, 1);
+  }
+  
   document.addEventListener("keydown", function(e) {
     if (e.key === "ArrowLeft" && player.x > wallWidth) {
       player.x -= 10;
@@ -125,7 +209,40 @@
       player.x += 10;
     }
   });
+  
+  // Touch event listeners for mobile devices
+  var touchStartX = 0;
 
+  canvas.addEventListener("touchstart", function(e) {
+    touchStartX = e.touches[0].clientX;
+  });
+
+  canvas.addEventListener("touchmove", function(e) {
+    var touchEndX = e.touches[0].clientX;
+    var touchDiff = touchEndX - touchStartX;
+
+    if (touchDiff > 0 && player.x > wallWidth) {
+      // Swipe right
+      player.x += 5;
+    } else if (touchDiff < 0 && player.x < canvas.width - wallWidth) {
+      // Swipe left
+      player.x -= 5;
+    }
+
+    touchStartX = touchEndX;
+  });
+  
+  // Resize canvas to fill the entire viewport
+  window.addEventListener('resize', resizeCanvas, false);
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    player.y = canvas.height - 70; // Adjust player's y coordinate
+  }
+
+  resizeCanvas(); // Initial resize
+  
   updateGameArea();
 </script>
 
