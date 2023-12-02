@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Endless</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      margin: auto;
+      background-color: #f0f0f0;
+    }
+
+    #introModal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px;
+      background-color: #fff;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      text-align: center;
+      z-index: 1;
+    }
+
+    #introModal h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    #introModal p {
+      font-size: 16px;
+    }
+
+    #startButton {
+      display: inline-block;
+      padding: 10px 20px;
+      margin-top: 20px;
+      font-size: 18px;
+      cursor: pointer;
+      background-color: #0095DD;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="introModal">
+  <h1>Endless Runner Game</h1>
+  <p>Welcome to the game! Collect power-ups and avoid obstacles.</p>
+  <p>Power-up Legend:</p>
+  <p><span style="color: #0000FF;">Blue:</span> Slow down the game</p>
+  <p><span style="color: #FFA500;">Orange:</span> Decrease obstacle size</p>
+  <p><span style="color: #00FF00;">Green:</span> Push the walls back</p>
+  <button id="startButton">Start Game</button>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+<script>
+  // Game variables
+  var canvas = document.getElementById("gameCanvas");
+  var ctx = canvas.getContext("2d");
+  var player = { x: canvas.width / 2, y: canvas.height - 70, width: 20, height: 20, color: "#0095DD" };
+  var obstacles = [];
+  var obstacleMin = 0;
+  var obstacleMax = 0.01;
+  var obstacleChance = 0.01;
+  var powerUps = [];
+  var powerupChance = 0.005;
+  var score = 0;
+  var speed = 1;
+  var wallWidth = 0; // Initial width of the walls
+  var gameStarted = false;
+
+  function drawPlayer() {
+    ctx.beginPath();
+    ctx.rect(player.x, player.y, player.width, player.height);
+    ctx.fillStyle = player.color;
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function drawObstacles() {
+    for (var i = 0; i < obstacles.length; i++) {
+      ctx.beginPath();
+      ctx.rect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+      ctx.fillStyle = "#FF0000";
+      ctx.fill();
+      ctx.closePath();
+    }
+  }
+
+  function drawPowerUps() {
+    for (var i = 0; i < powerUps.length; i++) {
+      ctx.beginPath();
+      ctx.arc(powerUps[i].x, powerUps[i].y, powerUps[i].radius, 0, Math.PI * 2);
+      ctx.fillStyle = powerUps[i].color;
+      ctx.fill();
+      ctx.closePath();
+    }
+  }
+
+  function drawWalls() {
+    ctx.fillStyle = "#CCCCCC";
+    ctx.fillRect(0, 0, wallWidth, canvas.height);
+    ctx.fillRect(canvas.width - wallWidth, 0, wallWidth, canvas.height);
+  }
+
+  function drawScore() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("Score: " + score, 10, 20);
+  }
+
+  function updateGameArea() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!gameStarted) {
+      return;
+    }
+
+    // Move obstacles
+    for (var i = 0; i < obstacles.length; i++) {
+      obstacles[i].y += speed;
+    }
+
+    // Move power-ups
+    for (var i = 0; i < powerUps.length; i++) {
+      powerUps[i].y += speed;
+    }
+
+    // Remove obstacles that are out of the canvas
+    obstacles = obstacles.filter(function (obstacle) {
+      return obstacle.y < canvas.height;
+    });
+
+    // Remove power-ups that are out of the canvas
+    powerUps = powerUps.filter(function (powerUp) {
+      return powerUp.y < canvas.height;
+    });
+
+    // Add new obstacle
+    if (Math.random() < obstacleChance) {
+      var obstacleWidth = Math.random() * (obstacleMax - obstacleMin) + obstacleMin;
+      var obstacleX = wallWidth + Math.random() * (canvas.width - (wallWidth * 2) - obstacleWidth);
+      var obstacleY = -20;
+
+      obstacles.push({ x: obstacleX, y: obstacleY, width: obstacleWidth, height: 20 });
+    }
+
+    // Add new power-up
+    if (Math.random() < powerupChance) {
+      var powerUpX = wallWidth + Math.random() * (canvas.width - (wallWidth * 2));
+      var powerUpY = -20;
+      var powerUpRadius = 10;
+      var powerUpColor = getRandomPowerUpColor();
+      powerUps.push({ x: powerUpX, y: powerUpY, radius: powerUpRadius, color: powerUpColor });
+    }
+
+    // Check for collisions with obstacles and walls
+    for (var i = 0; i < obstacles.length; i++) {
+      if (
+        (player.x < obstacles[i].x + obstacles[i].width &&
+          player.x + player.width > obstacles[i].x &&
+          player.y < obstacles[i].y + obstacles[i].height &&
+          player.y + player.height > obstacles[i].y) ||
+        (player.x < wallWidth && player.x > 0) ||
+        (player.x + player.width > canvas.width - wallWidth && player.x < canvas.width - player.width)
+      ) {
+        alert("Game Over! Your score is: " + score);
+        document.location.reload();
+      }
+    }
+
+    // Check for collisions with power-ups
+    for (var i = 0; i < powerUps.length; i++) {
+      if (
+        (player.x < powerUps[i].x + powerUps[i].radius &&
+          player.x + player.width > powerUps[i].x - powerUps[i].radius &&
+          player.y < powerUps[i].y + powerUps[i].radius &&
+          player.y + player.height > powerUps[i].y - powerUps[i].radius)
+      ) {
+        // Player collected a power-up
+        handlePowerUpCollected(i);
+      }
+    }
+
+    // Update score
+    score++;
+
+    // Increase speed gradually
+    if (score % 100 === 0) {
+      speed += 0.05;
+    }
+
+    // Narrow the safe play area over time
+    wallWidth += 0.025;
+
+    // Increase obstacle size over time
+    obstacleMin += 0.01;
+    obstacleMax += 0.02;
+
+    // Decrease power-up chance
+    powerupChance -= 0.0001;
+
+    // Increase obstacle chance
+    obstacleChance += 0.000001;
+
+    drawWalls();
+    drawPlayer();
+    drawObstacles();
+    drawPowerUps();
+    drawScore();
+
+    requestAnimationFrame(updateGameArea);
+  }
+
+  function getRandomPowerUpColor() {
+    var colors = ["#0000FF", "#FFA500", "#00FF00"];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  function handlePowerUpCollected(index) {
+    // Modify game state based on the collected power-up
+    var collectedPowerUp = powerUps[index];
+
+    // Slow down the game
+    if (collectedPowerUp.color === "#0000FF") {
+      speed -= Math.random() / 4 * speed;
+    }
+    // Decrease obstacle size
+    else if (collectedPowerUp.color === "#FFA500") {
+      obstacleMin -= Math.random() / 4 * obstacleMin;
+      obstacleMax -= Math.random() / 4 * obstacleMax;
+    }
+    // Push the walls back
+    else if (collectedPowerUp.color === "#00FF00") {
+      wallWidth -= Math.random() / 4 * wallWidth;
+    }
+
+    // Remove the collected power-up from the array
+    powerUps.splice(index, 1);
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowLeft" && player.x > wallWidth) {
+      player.x -= 10;
+    } else if (e.key === "ArrowRight" && player.x < canvas.width - wallWidth) {
+      player.x += 10;
+    } else if (e.key === "ArrowUp" && player.y > 0) {
+      player.y -= 10;
+    } else if (e.key === "ArrowDown" && player.y < canvas.height - player.height) {
+      player.y += 10;
+    }
+  });
+
+  // Touch event listeners for mobile devices
+  var touchStartX = 0;
+  var touchStartY = 0;
+
+  canvas.addEventListener("touchstart", function (e) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  });
+
+  canvas.addEventListener("touchmove", function (e) {
+    var touchEndX = e.touches[0].clientX;
+    var touchEndY = e.touches[0].clientY;
+    var touchDiffX = touchEndX - touchStartX;
+    var touchDiffY = touchEndY - touchStartY;
+
+    if (Math.abs(touchDiffX) > Math.abs(touchDiffY)) {
+      if (touchDiffX > 0 && player.x < canvas.width - wallWidth - player.width) {
+        // Swipe right
+        player.x += 10;
+      } else if (touchDiffX < 0 && player.x > wallWidth) {
+        // Swipe left
+        player.x -= 10;
+      }
+    } else {
+      if (touchDiffY > 0 && player.y < canvas.height - player.height) {
+        // Swipe down
+        player.y += 10;
+      } else if (touchDiffY < 0 && player.y > 0) {
+        // Swipe up
+        player.y -= 10;
+      }
+    }
+
+    touchStartX = touchEndX;
+    touchStartY = touchEndY;
+  });
+
+  // Resize canvas to fill the entire viewport
+  window.addEventListener('resize', resizeCanvas, false);
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    player.y = canvas.height - 70; // Adjust player's y coordinate
+  }
+
+  // Show the intro modal before starting the game
+  showIntroModal();
+
+  function showIntroModal() {
+    var introModal = document.getElementById("introModal");
+    var startButton = document.getElementById("startButton");
+
+    introModal.style.display = "block";
+
+    startButton.addEventListener("click", function () {
+      introModal.style.display = "none";
+      gameStarted = true;
+      updateGameArea();
+    });
+  }
+
+  resizeCanvas(); // Initial resize
+</script>
+
+</body>
+</html>
