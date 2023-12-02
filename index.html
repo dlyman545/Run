@@ -55,8 +55,8 @@
 <body>
 
 <div id="introModal">
-  <h1>Endless Runner Game</h1>
-  <p>Welcome to the game! Collect power-ups and avoid obstacles.</p>
+  <h1>Endless</h1>
+  <p>What's your high score? Collect power-ups and avoid obstacles.</p>
   <p>Power-up Legend:</p>
   <p><span style="color: #0000FF;">Blue:</span> Slow down the game</p>
   <p><span style="color: #FFA500;">Orange:</span> Decrease obstacle size</p>
@@ -79,7 +79,7 @@
   var powerUps = [];
   var powerupChance = 0.005;
   var score = 0;
-  var speed = 1;
+  var speed = 0; // set in instrucitons modal
   var wallWidth = 0; // Initial width of the walls
 
   function drawPlayer() {
@@ -307,6 +307,7 @@
     startButton.addEventListener("click", function () {
       introModal.style.display = "none";
       gameStarted = true;
+      speed = 1; 
       updateGameArea();
     });
   }
