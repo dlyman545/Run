@@ -282,18 +282,18 @@
     if (Math.abs(touchDiffX) > Math.abs(touchDiffY)) {
       if (touchDiffX > 0 && player.x < canvas.width - wallWidth - player.width) {
         // Swipe right
-        player.x += 10;
+        player.x += 5;
       } else if (touchDiffX < 0 && player.x > wallWidth) {
         // Swipe left
-        player.x -= 10;
+        player.x -= 5;
       }
     } else {
       if (touchDiffY > 0 && player.y < canvas.height - player.height) {
         // Swipe down
-        player.y += 10;
+        player.y += 5;
       } else if (touchDiffY < 0 && player.y > 0) {
         // Swipe up
-        player.y -= 10;
+        player.y -= 5;
       }
     }
 
