@@ -254,34 +254,49 @@
     } else if (e.key === "ArrowRight" && player.x < canvas.width - wallWidth) {
       player.x += 10;
     }
-    else if (e.key === "ArrowUp" && player.y < 0) {
-      player.y += 10;
-    }
-    else if (e.key === "ArrowDown" && player.y > canvas.height) {
+    else if (e.key === "ArrowUp" && player.y > 0) {
       player.y -= 10;
+    }
+    } else if (e.key === "ArrowDown" && player.y < canvas.height - player.height) {
+      player.y += 10;
     }
   });
   
   // Touch event listeners for mobile devices
   var touchStartX = 0;
+  var touchStartY = 0;
 
   canvas.addEventListener("touchstart", function(e) {
     touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
   });
 
-  canvas.addEventListener("touchmove", function(e) {
+ canvas.addEventListener("touchmove", function (e) {
     var touchEndX = e.touches[0].clientX;
-    var touchDiff = touchEndX - touchStartX;
+    var touchEndY = e.touches[0].clientY;
+    var touchDiffX = touchEndX - touchStartX;
+    var touchDiffY = touchEndY - touchStartY;
 
-    if (touchDiff > 0 && player.x > wallWidth) {
-      // Swipe right
-      player.x += 5;
-    } else if (touchDiff < 0 && player.x < canvas.width - wallWidth) {
-      // Swipe left
-      player.x -= 5;
+    if (Math.abs(touchDiffX) > Math.abs(touchDiffY)) {
+      if (touchDiffX > 0 && player.x < canvas.width - wallWidth - player.width) {
+        // Swipe right
+        player.x += 10;
+      } else if (touchDiffX < 0 && player.x > wallWidth) {
+        // Swipe left
+        player.x -= 10;
+      }
+    } else {
+      if (touchDiffY > 0 && player.y < canvas.height - player.height) {
+        // Swipe down
+        player.y += 10;
+      } else if (touchDiffY < 0 && player.y > 0) {
+        // Swipe up
+        player.y -= 10;
+      }
     }
 
     touchStartX = touchEndX;
+    touchStartY = touchEndY;
   });
   
   // Resize canvas to fill the entire viewport
