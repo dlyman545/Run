@@ -195,7 +195,7 @@
     score++;
 
     // Increase speed gradually
-    if (score % 100 === 0 && speed > 0) {
+    if (score % 100 === 0) {
       speed += 0.05;
     }
 
@@ -293,7 +293,7 @@
   }
 
   resizeCanvas(); // Initial resize
-  //player.y = canvas.height - 70; // Adjust player's y coordinate
+  player.y = canvas.height - 70; // Adjust player's y coordinate
 
     // Show the intro modal before starting the game
   showIntroModal();
@@ -312,7 +312,7 @@
     });
   }
 
-  updateGameArea();
+  //updateGameArea();
 </script>
 
 </body>
