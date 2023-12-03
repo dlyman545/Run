@@ -152,10 +152,11 @@
     // Add new obstacle
     if (Math.random() < obstacleChance) {
       var obstacleWidth = Math.random() * (obstacleMax - obstacleMin) + obstacleMin;
+      var obstacleHeight = Math.random() * (obstacleMax - obstacleMin) + 20;
       var obstacleX = wallWidth + Math.random() * (canvas.width - (wallWidth * 2) - obstacleWidth);
       var obstacleY = -20;
 
-      obstacles.push({ x: obstacleX, y: obstacleY, width: obstacleWidth, height: 20 });
+      obstacles.push({ x: obstacleX, y: obstacleY, width: obstacleWidth, height: obstacleHeight });
     }
 
     // Add new power-up
