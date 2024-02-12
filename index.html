@@ -9,7 +9,7 @@
       margin: 0;
       padding: 0;
       width: 100%;
-      height: 100%;
+      height: 100vh;
       overflow: hidden;
     }
 
@@ -17,7 +17,8 @@
       display: block;
       margin: auto;
       background-color: #f0f0f0;
-      max-width: 497px;
+      max-width: 500px;
+      max-width: 1000px;
     }
 
     #introModal {
@@ -311,7 +312,7 @@
 
   function resizeCanvas() {
     canvas.width = window.innerWidth;
-    // canvas.height = window.innerHeight;
+    canvas.height = window.innerHeight;
     player.y = canvas.height - 70; // Adjust player's y coordinate
   }
 
